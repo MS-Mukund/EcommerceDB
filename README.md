@@ -1,0 +1,1 @@
+Welcome to the e-commerce database BUYNOW. This database is used to store the information about the products, the customers and all the transactions.  
