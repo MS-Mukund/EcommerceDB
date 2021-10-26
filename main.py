@@ -2,6 +2,7 @@ from os import uname
 import subprocess as sp
 import pymysql
 import pymysql.cursors
+import datetime
 
 import bisect
 
@@ -31,11 +32,9 @@ def UpdateUserDetails():
         UserName = input("Username: ")
 
         # Check if the username already exists
-        query = "SELECT EXISTS(SELECT * FROM Users WHERE Username = '%s');" % (UserName)
-        cur.execute(query)
+        cur.execute("SELECT EXISTS(SELECT * FROM Users WHERE Username = %s);" % (UserName))
 
-        check = next( iter((cur.fetchone()).values()) )
-        print(check)
+        check = cur.fetchone()[0]
 
         if( check > 0 ):
             print("Type the columns (comma-separated) you want to update: ")
@@ -55,21 +54,14 @@ def UpdateUserDetails():
             # Get the columns to be updated
             columns = input("Enter the columns, comma-separated: ").split(",")
             for column in columns:
-                row[column] = input("Enter the value for %s: " % column)
-                
                 if(column.lower() == "Premium_subscription".lower()):
-                    if( row[column] == 1):
-                        row[column] = 0x01
-                    else:
-                        row[column] = 0x00    
-                    continue
+                    row[column] = bool(input("Premium_subscription: "))
+                    continueorderid = 1
                 elif column.lower() == "Username".lower():
                     print("You cannot change username")
-                    return
-                elif column.lower() == "phone_number" or column.lower() == "pincode":
-                    if row[column].isdigit() == False:
-                        print("Invalid phone number or pincode")
-                        return                    
+                    continue
+
+                row[column] = input("Enter the value for %s: " % column)
 
             # Update columns specified by user, not all
             for column in columns:
@@ -88,9 +80,6 @@ def UpdateUserDetails():
                 UserName = inp
                 
             row[1] = input("Phone_number: ")
-            if row[1].isdigit() == False:
-                print("Invalid phone number")
-                return
             row[2] = input("First_name: ")
             row[3] = input("middle_name: ")
             row[4] = input("Last_name: ")
@@ -102,13 +91,9 @@ def UpdateUserDetails():
             row[9] = input("Address_Line2: ")
             row[10] = input("Pincode: ")
 
-            if row[10].isdigit() == False:
-                print("Invalid pincode")
-                return
-
             # Insert the data
-            cur.execute("INSERT INTO Users VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s');" %
-            (UserName, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10]))
+            cur.execute("INSERT INTO Users VALUES(%s, %s, %s, %s, %s, %s, %s, %d, %s, %s, %s);" %
+            (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10]))
 
         con.commit()
 
@@ -130,11 +115,8 @@ def FilterCategory():
     filter = input("Enter the category: ")
 
     # Check if the category exists    
-    if filter in CategoryList and filter not in CategoryFilter:
+    if filter in CategoryList:
         CategoryFilter.append(filter)
-        print("Added filter")
-    elif filter in CategoryFilter:
-        print("Filter already present")
     else:
         print("Invalid option: press 7 to list all categories")
 
@@ -154,10 +136,8 @@ def RemoveCategory():
     inp = input("Enter category to be removed (all if you want to remove all filters): ")
     if(inp == "all"):
         CategoryFilter = []
-        print("Removed all filters")
     elif inp in CategoryFilter:
         CategoryFilter.remove(inp)
-        print("Removed")
     else:
         print("Invalid option %s", inp)
 
@@ -169,9 +149,9 @@ def ListPrice():
     print("Price Range: ", end="")
     for bound in enumerate (PriceUpperBounds):
         if( bound[0] == 0):
-            print("     < %d" % bound[1])
+            print("< %d" % bound[1])
         elif( bound[0] == len(PriceUpperBounds) - 1):
-            print("     > %d" % bound[1])
+            print("> %d" % bound[1])
         else:
             print("%d - %d" % (PriceUpperBounds[bound[0]-1], bound[1]))
 
@@ -201,21 +181,19 @@ def FilterPrice():
 
 def RemovePrice():
     global PriceFilter
-    if PriceFilter != (MIN, MAX):
-        PriceFilter = (MIN, MAX)
-        print("removed")
+    PriceFilter = (MIN, MAX)
+    print("removed")
     
 def Insert_Order_Details():
     try:
         var=0
         while(var==0):
             row = {}
-            orderid = input("Order_ID: ")
-            # Check if the orderId is unique or not
-            check = cur.execute("SELECT EXISTS(SELECT * FROM Users WHERE Username = %s);" % (orderid))
+            cur.execute("SELECT EXISTS(SELECT * FROM Orders WHERE Order_id = '%s');" % (Orders.Order_id))
+            check = next( iter((cur.fetchone()).values()) )
             #check = cur.fetchone()[0]
             if( check <= 0 ):
-                print("There is already an order with the order_ID '%s',Please give unique one\n" % (orderid))
+                print("There is already an order with the order_ID '%s',Please give unique one\n" % (Orders.Order_id))
             else:
                 x=0
                 while(x==0):
@@ -287,7 +265,6 @@ def Insert_Order_Details():
         print(">>>>>>>>>>>>>", e)
 
     return
-
 
 
 
@@ -406,14 +383,6 @@ def Orders_Queued():
 
     return
 
-def categorical_func():
-    cur.execute("SHOW TABLES;")
-    tables = cur.fetchall()
-
-    for tbl in tables:
-        if "Category" in next( iter(tbl.values()) ):
-            CategoryList.append(next( iter(tbl.values()) ))
-
 def dispatch(ch):
     """
     Function that maps helper functions to option entered
@@ -449,7 +418,7 @@ def dispatch(ch):
 
 # Global
 while(1):
-    # tmp = sp.call('clear', shell=True)
+    tmp = sp.call('clear', shell=True)
     
     # Can be skipped if you want to hardcode username and password
     # username = input("Username: ")
@@ -464,7 +433,7 @@ while(1):
                               port=30306,
                               db=dbName,
                               cursorclass=pymysql.cursors.DictCursor)
-        # tmp = sp.call('clear', shell=True)
+        tmp = sp.call('clear', shell=True)
 
         if(con.open):
             print("Connected")
@@ -474,12 +443,18 @@ while(1):
         tmp = input("Enter any key to CONTINUE>")
 
         with con.cursor() as cur:
+            cur.execute("SHOW TABLES;")
+            tables = cur.fetchall()
 
-            if len(CategoryList) == 0:
-                categorical_func()
+            # check if "Category" substring is present in the tables list
+            # if present, then add the category name to the CategoryList
+            for tbl in tables:
+                if "Category" in tbl:
+                    CategoryList.append(tbl)
 
+            input()
             while(1):
-                # tmp = sp.call('clear', shell=True)
+                tmp = sp.call('clear', shell=True)
                 
                 # updates
                 print("1. Update Your Details/Create Account") 
@@ -500,7 +475,7 @@ while(1):
                 print("13. exit")
 
                 ch = int(input("Enter choice> "))
-                # tmp = sp.call('clear', shell=True)
+                tmp = sp.call('clear', shell=True)
                 if ch == 13:
                     exit()
                 else:
@@ -508,7 +483,7 @@ while(1):
                     tmp = input("Enter any key to CONTINUE>")
 
     except Exception as e:
-        # tmp = sp.call('clear', shell=True)
+        tmp = sp.call('clear', shell=True)
         print(e)
         # print("Connection Refused: Either username or password is incorrect or user doesn't have access to database")
         tmp = input("Enter any key to CONTINUE>")
