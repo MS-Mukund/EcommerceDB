@@ -203,6 +203,200 @@ def RemovePrice():
     global PriceFilter
     PriceFilter = (MIN, MAX)
     print("removed")
+    
+def Insert_Order_Details():
+    try:
+        var=0
+        while(var<0):
+            row = {}
+            orderid = input("Order_ID: ")
+            # Check if the orderId is unique or not
+            cur.execute("SELECT EXISTS(SELECT * FROM Users WHERE Order_ID = %s);" % (orderid))
+            check = cur.fetchone()[0]
+            if( check > 0 ):
+                print("There is already an order with the order_ID %s,Please give unique one\n" % (orderid))
+            else:
+                x=0
+                while(x<0):
+                    row[0] = print("Enter Username: ")
+                    cur.execute("SELECT EXISTS(SELECT * FROM Users WHERE Username = %s);" % (row[0]))
+                    check_username = cur.fetchone()[0]
+                    if(check_username<=0):
+                        print("User with this username doesn't exist in the database\n")
+                    else:
+                        break
+                while(x<0):
+                    row[1] = print("Enter Product ID: ")
+                    cur.execute("SELECT EXISTS(SELECT * FROM Products WHERE Product_ID= %s);" % (row[1]))
+                    check_productid = cur.fetchone()[0]
+                    if(check_productid<=0):
+                        print("Product with this Product_ID doesn't exist in the database\n")
+                    else:
+                        break 
+                while(x<0):
+                    row[2] = print("Enter Supplier ID: ")
+                    cur.execute("SELECT EXISTS(SELECT * FROM Suppliers WHERE SupplierID= %s);" % (row[2]))
+                    check_supplierid = cur.fetchone()[0]
+                    if(check_supplierid<=0):
+                        print("Supplier with this Supplier_ID doesn't exist in the database\n")
+                    else:
+                        break 
+                while(x<0):
+                    row[3] = print("Enter Agency ID: ")
+                    cur.execute("SELECT EXISTS(SELECT * FROM Delivery_Agency WHERE Agency_ID = %s);" % (row[3]))
+                    check_agencyid = cur.fetchone()[0]
+                    if(check_agencyid<=0):
+                        print("Agency with this Agency_ID doesn't exist in the database\n")
+                    else:
+                        break 
+                while(x<0):
+                    row[4] = print("Enter Placed_Date: ")
+                    if type(row[4]) !="date":
+                        print("Provide valid date\n")
+                    else:
+                        break
+                while(x<0):
+                    row[5] = print("Enter Amount_Paid: ")
+                    if type(row[5])!="int":
+                        print("Provide valid Amount Paid\n")
+                    else:
+                        break
+                row[6] = 0
+                row[7] = "NULL"
+                row[8] = orderid
+                break
+                 # Insert the data
+                cur.execute("INSERT INTO Orders VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);" %
+                (row[4], row[5], row[6], row[7], row[3], row[2], row[0], row[1], row[8]))
+                con.commit()
+                cur.execute("INSERT INTO Purchase_Transaction VALUES(%s, %s, %s, %s, %s);" %
+                (row[3], row[2], row[0], row[1], row[8]))
+                con.commit()
+                print("Updated your details")
+                
+
+    except Exception as e:
+        con.rollback()
+        print("Failed to insert into database")
+        print(">>>>>>>>>>>>>", e)
+
+    return
+
+
+
+def Insert_Return_Order_Details():
+    try:
+        var=0
+        while(var<0):
+            row = {}
+            return_orderid = input("Return_ID: ")
+            # Check if the orderId is unique or not
+            cur.execute("SELECT EXISTS(SELECT * FROM Return_Order WHERE Return_ID = %s);" % (return_orderid))
+            check = cur.fetchone()[0]
+            if( check > 0 ):
+                print("There is already an return order with the Returnorder_ID %s,Please give unique one\n" % (return_orderid))
+            else:
+                row[0] = return_orderid
+                x=0
+                while(x<0):
+                    row[1] = print("Enter Date_of_order: ")
+                    if type(row[1]) !="date":
+                        print("Provide valid date\n")
+                    else:
+                        break
+                    
+                while(x<0):
+                    row[2] = print("Enter Product ID: ")
+                    cur.execute("SELECT EXISTS(SELECT * FROM Products WHERE Product_ID= %s);" % (row[2]))
+                    check_productid = cur.fetchone()[0]
+                    if(check_productid<=0):
+                        print("Product with this Product_ID doesn't exist in the database\n")
+                    else:
+                        break 
+                while(x<0):
+                    row[5] = print("Enter Supplier ID: ")
+                    cur.execute("SELECT EXISTS(SELECT * FROM Suppliers WHERE SupplierID= %s);" % (row[5]))
+                    check_supplierid = cur.fetchone()[0]
+                    if(check_supplierid<=0):
+                        print("Supplier with this Supplier_ID doesn't exist in the database\n")
+                    else:
+                        break 
+                while(x<0):
+                    row[4] = print("Enter Agency ID: ")
+                    cur.execute("SELECT EXISTS(SELECT * FROM Delivery_Agency WHERE Agency_ID = %s);" % (row[4]))
+                    check_agencyid = cur.fetchone()[0]
+                    if(check_agencyid<=0):
+                        print("Agency with this Agency_ID doesn't exist in the database\n")
+                    else:
+                        break 
+                while(x<0):
+                    row[6] = print("Enter Username: ")
+                    cur.execute("SELECT EXISTS(SELECT * FROM Users WHERE Username = %s);" % (row[6]))
+                    check_username = cur.fetchone()[0]
+                    if(check_username<=0):
+                        print("User with this username doesn't exist in the database\n")
+                    else:
+                        break
+                while(x<0):
+                    row[3] = print("Enter Refund Amount: ")
+                    if type(row[3])!="int":
+                        print("Provide valid Refund Amount\n")
+                    else:
+                        break
+                 # Insert the data
+                cur.execute("INSERT INTO Return_Order VALUES(%s, %s, %s, %s, %s, %s, %s);" %
+                (row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
+                con.commit()
+                cur.execute("INSERT INTO Return_Transaction VALUES(%s, %s, %s, %s, %s);" %
+                (row[4], row[5], row[6], row[2], row[0]))
+                con.commit()
+                print("Updated your details")
+                
+
+    except Exception as e:
+        con.rollback()
+        print("Failed to insert into database")
+        print(">>>>>>>>>>>>>", e)
+
+    return
+def Orders_Yet_ToBe_Returned():
+    try:
+        var=0
+        while(var<0):
+            Username = printf("Enter Username: ")
+            cur.execute("SELECT EXISTS(SELECT * Users FROM  WHERE Username = %s);" % (Username))
+            check = cur.fetchone()[0]
+            if( check <= 0 ):
+                print("There is no user with the Username %s" % (Username))
+            else:
+                cur.execute("SELECT O_Username,Order_ID,O_Product_ID,O_Agency_ID,O_SupplierID,Amount_Paid,Placed_Date FROM Orders WHERE R_Username=%s AND Is_it_delivered=0",Username)
+                break
+    except Exception as e:
+        con.rollback()
+        print("Failed to insert into database")
+        print(">>>>>>>>>>>>>", e)
+
+    return
+
+
+def Orders_Queued():
+    try:
+        var=0
+        while(var<0):
+            Username = printf("Enter Username: ")
+            cur.execute("SELECT EXISTS(SELECT * Users FROM  WHERE Username = %s);" % (Username))
+            check = cur.fetchone()[0]
+            if( check <= 0 ):
+                print("There is no user with the Username %s" % (Username))
+            else:
+                cur.execute("SELECT O_Username,Order_ID,O_Product_ID,O_Agency_ID,O_SupplierID,Amount_Paid,Placed_Date,Date_of_Delivery,Is_it_delivered FROM Orders WHERE R_Username=%s ORDER BY Placed_Date",Username)
+                break
+    except Exception as e:
+        con.rollback()
+        print("Failed to insert into database")
+        print(">>>>>>>>>>>>>", e)
+
+    return
 
 def dispatch(ch):
     """
