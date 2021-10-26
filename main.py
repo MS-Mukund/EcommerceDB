@@ -91,7 +91,14 @@ def UpdateUserDetails():
             print("Data updated successfully")
         
         else:
-            row[0] = uname
+            print("Are you sure you want to set this as your username(y/n): ")
+            if(input().lower() == "y"):
+                row[0] = UserName
+            else:
+                inp = input("Enter new username: ")
+                row[0] = inp
+                UserName = inp
+                
             row[1] = input("Phone_number: ")
             row[2] = input("First_name: ")
             row[3] = input("middle_name: ")
