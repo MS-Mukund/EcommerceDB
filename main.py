@@ -34,19 +34,8 @@ def UpdateUserDetails():
         query = "SELECT EXISTS(SELECT * FROM Users WHERE Username = '%s');" % (UserName)
         cur.execute(query)
 
-        check = 0
-        exist = cur.fetchone()
-        if bool(exist) :
-            print(type(exist))
-            print(exist)
-            print(exist[0])
-            
-            print("NO")
-        else:
-            check = 0
-        print(check)
+        check = next( iter((cur.fetchone()).values()) )
         
-
         if( check > 0 ):
             print("Type the columns (comma-separated) you want to update: ")
             print("List of columns:")
@@ -66,7 +55,10 @@ def UpdateUserDetails():
             columns = input("Enter the columns, comma-separated: ").split(",")
             for column in columns:
                 if(column.lower() == "Premium_subscription".lower()):
-                    row[column] = bool(input("Premium_subscription: "))
+                    if( row[column] == 1):
+                        row[column] = 0x01
+                    else:
+                        row[column] = 0x00    
                     continue
                 elif column.lower() == "Username".lower():
                     print("You cannot change username")
@@ -101,10 +93,11 @@ def UpdateUserDetails():
             row[8] = input("Address_Line1: ")
             row[9] = input("Address_Line2: ")
             row[10] = input("Pincode: ")
+            print("yes")
 
             # Insert the data
-            cur.execute("INSERT INTO Users VALUES(%s, %s, %s, %s, %s, %s, %s, %d, %s, %s, %s);" %
-            (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10]))
+            cur.execute("INSERT INTO Users VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s');" %
+            (UserName, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10]))
 
         con.commit()
 
