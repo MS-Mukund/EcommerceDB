@@ -2,7 +2,6 @@ from os import uname
 import subprocess as sp
 import pymysql
 import pymysql.cursors
-import datetime
 
 import bisect
 
@@ -16,6 +15,7 @@ PriceFilter = (MIN, MAX) = (0, 1e9)
 # Category List
 CategoryList = []
 CategoryFilter = []
+
 
 def UpdateUserDetails():
     """
@@ -32,9 +32,11 @@ def UpdateUserDetails():
         UserName = input("Username: ")
 
         # Check if the username already exists
-        cur.execute("SELECT EXISTS(SELECT * FROM Users WHERE Username = %s);" % (UserName))
+        query = "SELECT EXISTS(SELECT * FROM Users WHERE Username = '%s');" % (UserName)
+        cur.execute(query)
 
-        check = cur.fetchone()[0]
+        check = next( iter((cur.fetchone()).values()) )
+        print(check)
 
         if( check > 0 ):
             print("Type the columns (comma-separated) you want to update: ")
@@ -54,14 +56,21 @@ def UpdateUserDetails():
             # Get the columns to be updated
             columns = input("Enter the columns, comma-separated: ").split(",")
             for column in columns:
+                row[column] = input("Enter the value for %s: " % column)
+                
                 if(column.lower() == "Premium_subscription".lower()):
-                    row[column] = bool(input("Premium_subscription: "))
-                    continueorderid = 1
+                    if( row[column] == 1):
+                        row[column] = 0x01
+                    else:
+                        row[column] = 0x00    
+                    continue
                 elif column.lower() == "Username".lower():
                     print("You cannot change username")
-                    continue
-
-                row[column] = input("Enter the value for %s: " % column)
+                    return
+                elif column.lower() == "phone_number" or column.lower() == "pincode":
+                    if row[column].isdigit() == False:
+                        print("Invalid phone number or pincode")
+                        return                    
 
             # Update columns specified by user, not all
             for column in columns:
@@ -80,6 +89,9 @@ def UpdateUserDetails():
                 UserName = inp
                 
             row[1] = input("Phone_number: ")
+            if row[1].isdigit() == False:
+                print("Invalid phone number")
+                return
             row[2] = input("First_name: ")
             row[3] = input("middle_name: ")
             row[4] = input("Last_name: ")
@@ -91,9 +103,13 @@ def UpdateUserDetails():
             row[9] = input("Address_Line2: ")
             row[10] = input("Pincode: ")
 
+            if row[10].isdigit() == False:
+                print("Invalid pincode")
+                return
+
             # Insert the data
-            cur.execute("INSERT INTO Users VALUES(%s, %s, %s, %s, %s, %s, %s, %d, %s, %s, %s);" %
-            (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10]))
+            cur.execute("INSERT INTO Users VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s');" %
+            (UserName, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10]))
 
         con.commit()
 
@@ -106,6 +122,27 @@ def UpdateUserDetails():
 
     return
 
+def Search_Products_by_Name():
+    """
+    Useful to search for products by name. The Output will be all such items, sorted in descending Order of relevance to the searched Keyword
+    """
+
+    try:
+        #Take Keyword as input.
+        keyword  = input("Enter the Keyword to search for: ")
+        cur.execute("SELECT * FROM Products WHERE Name LIKE '%%%s%%' LIMIT 10 ;" %(keyword))
+        check = cur.fetchall() #warranty company price and name
+        j=1
+        for i in check:
+            if i['Price'] > PriceFilter[0] and i['Price'] < PriceFilter[1]:
+                print(j,". Product Name: " ,i['Name'], "\t Product Warranty: ",i['Warranty'],"\t Brand: ",i['Company'],"\t Price: ",i['Price'])
+            j=j+1
+    except Exception as e:
+        con.rollback()
+        print("Failed to Retrieve Products-List from database")
+        print(">>>>>>>>>>>>>", e)
+        return
+
 
 def FilterCategory():
     """
@@ -115,8 +152,11 @@ def FilterCategory():
     filter = input("Enter the category: ")
 
     # Check if the category exists    
-    if filter in CategoryList:
+    if filter in CategoryList and filter not in CategoryFilter:
         CategoryFilter.append(filter)
+        print("Added filter")
+    elif filter in CategoryFilter:
+        print("Filter already present")
     else:
         print("Invalid option: press 7 to list all categories")
 
@@ -136,8 +176,10 @@ def RemoveCategory():
     inp = input("Enter category to be removed (all if you want to remove all filters): ")
     if(inp == "all"):
         CategoryFilter = []
+        print("Removed all filters")
     elif inp in CategoryFilter:
         CategoryFilter.remove(inp)
+        print("Removed")
     else:
         print("Invalid option %s", inp)
 
@@ -149,9 +191,9 @@ def ListPrice():
     print("Price Range: ", end="")
     for bound in enumerate (PriceUpperBounds):
         if( bound[0] == 0):
-            print("< %d" % bound[1])
+            print("     < %d" % bound[1])
         elif( bound[0] == len(PriceUpperBounds) - 1):
-            print("> %d" % bound[1])
+            print("     > %d" % bound[1])
         else:
             print("%d - %d" % (PriceUpperBounds[bound[0]-1], bound[1]))
 
@@ -181,19 +223,27 @@ def FilterPrice():
 
 def RemovePrice():
     global PriceFilter
-    PriceFilter = (MIN, MAX)
-    print("removed")
+    if PriceFilter != (MIN, MAX):
+        PriceFilter = (MIN, MAX)
+        print("removed")
     
 def Insert_Order_Details():
     try:
         var=0
+
+        orderid = 1
+        cur.execute("SELECT MAX(Order_ID) FROM Orders;")
+        
+        orderid = next( iter((cur.fetchone()).values()) ) + 1
+
         while(var==0):
             row = {}
-            cur.execute("SELECT EXISTS(SELECT * FROM Orders WHERE Order_id = '%s');" % (Orders.Order_id))
+            cur.execute("SELECT EXISTS(SELECT * FROM Orders WHERE Order_ID = '%s');" % (orderid))
             check = next( iter((cur.fetchone()).values()) )
             #check = cur.fetchone()[0]
-            if( check <= 0 ):
-                print("There is already an order with the order_ID '%s',Please give unique one\n" % (Orders.Order_id))
+            if( check > 0 ):
+                print("There is already an order with the order_ID '%s',Please give unique one\n" % (orderid))
+                break
             else:
                 x=0
                 while(x==0):
@@ -230,7 +280,7 @@ def Insert_Order_Details():
                     else:
                         break 
                 while(x==0):
-                    row[4] = input("Enter the date in format 'yy/mm/dd': ")
+                    row[4] = input("Enter the date in format 'yyyy-mm-dd': ")
                     year, month, day = row[4].split('-')
                     year = int(year)
                     month = int(month)
@@ -255,6 +305,7 @@ def Insert_Order_Details():
                 cur.execute("INSERT INTO Purchase_Transaction VALUES('%s', '%s', '%s', '%s', '%s');" %
                 (row[3], row[2], row[0], row[1], row[8]))
                 con.commit()
+
                 print("Updated your details")
                 break
                 
@@ -266,95 +317,25 @@ def Insert_Order_Details():
 
     return
 
-
-
-def Insert_Return_Order_Details():
-    try:
-        var=0
-        while(var<0):
-            row = {}
-            return_orderid = input("Return_ID: ")
-            # Check if the orderId is unique or not
-            cur.execute("SELECT EXISTS(SELECT * FROM Return_Order WHERE Return_ID = %s);" % (return_orderid))
-            check = cur.fetchone()[0]
-            if( check > 0 ):
-                print("There is already an return order with the Returnorder_ID %s,Please give unique one\n" % (return_orderid))
-            else:
-                row[0] = return_orderid
-                x=0
-                while(x<0):
-                    row[1] = print("Enter Date_of_order: ")
-                    if type(row[1]) !="date":
-                        print("Provide valid date\n")
-                    else:
-                        break
-                    
-                while(x<0):
-                    row[2] = print("Enter Product ID: ")
-                    cur.execute("SELECT EXISTS(SELECT * FROM Products WHERE Product_ID= %s);" % (row[2]))
-                    check_productid = cur.fetchone()[0]
-                    if(check_productid<=0):
-                        print("Product with this Product_ID doesn't exist in the database\n")
-                    else:
-                        break 
-                while(x<0):
-                    row[5] = print("Enter Supplier ID: ")
-                    cur.execute("SELECT EXISTS(SELECT * FROM Suppliers WHERE SupplierID= %s);" % (row[5]))
-                    check_supplierid = cur.fetchone()[0]
-                    if(check_supplierid<=0):
-                        print("Supplier with this Supplier_ID doesn't exist in the database\n")
-                    else:
-                        break 
-                while(x<0):
-                    row[4] = print("Enter Agency ID: ")
-                    cur.execute("SELECT EXISTS(SELECT * FROM Delivery_Agency WHERE Agency_ID = %s);" % (row[4]))
-                    check_agencyid = cur.fetchone()[0]
-                    if(check_agencyid<=0):
-                        print("Agency with this Agency_ID doesn't exist in the database\n")
-                    else:
-                        break 
-                while(x<0):
-                    row[6] = print("Enter Username: ")
-                    cur.execute("SELECT EXISTS(SELECT * FROM Users WHERE Username = %s);" % (row[6]))
-                    check_username = cur.fetchone()[0]
-                    if(check_username<=0):
-                        print("User with this username doesn't exist in the database\n")
-                    else:
-                        break
-                while(x<0):
-                    row[3] = print("Enter Refund Amount: ")
-                    if type(row[3])!="int":
-                        print("Provide valid Refund Amount\n")
-                    else:
-                        break
-                 # Insert the data
-                cur.execute("INSERT INTO Return_Order VALUES(%s, %s, %s, %s, %s, %s, %s);" %
-                (row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
-                con.commit()
-                cur.execute("INSERT INTO Return_Transaction VALUES(%s, %s, %s, %s, %s);" %
-                (row[4], row[5], row[6], row[2], row[0]))
-                con.commit()
-                print("Updated your details")
-                
-
-    except Exception as e:
-        con.rollback()
-        print("Failed to insert into database")
-        print(">>>>>>>>>>>>>", e)
-
-    return
+    
 def Orders_Yet_ToBe_Returned():
     try:
         var=0
-        while(var<0):
-            Username = print("Enter Username: ")
-            cur.execute("SELECT EXISTS(SELECT * Users FROM  WHERE Username = %s);" % (Username))
-            check = cur.fetchone()[0]
-            if( check <= 0 ):
+        while(var==0):
+            Username = input("Enter Username: ")
+            cur.execute("SELECT EXISTS(SELECT * FROM Users WHERE Username = '%s');" % (Username))
+           
+            check_username = next( iter((cur.fetchone()).values()) )
+           
+            if( check_username <= 0 ):
                 print("There is no user with the Username %s" % (Username))
             else:
-                query = 'SELECT O_Username,Order_ID,O_Product_ID,O_Agency_ID,O_SupplierID,Amount_Paid,Placed_Date FROM Orders WHERE R_Username=%s AND Is_it_delivered=0' % (Username)
-                cur.execute(query)
+                cur.execute("SELECT O_Username,Order_ID,O_Product_ID,O_Agency_ID,O_SupplierID,Amount_Paid,Placed_Date FROM Orders WHERE O_Username= '%s' AND Is_it_delivered=0" % (Username))
+                #P = cur.fetchmany("SELECT O_Username,Order_ID,O_Product_ID,O_Agency_ID,O_SupplierID,Amount_Paid,Placed_Date FROM Orders WHERE O_Username= '%s' AND Is_it_delivered=0" % (Username))
+                P = cur.fetchall()
+                
+                for i in P:
+                    print("Username: ",i['O_Username'],"Order_ID: ",i['Order_ID'],"Product_ID: ",i['O_Product_ID'] ,"Agency_ID: ", i['O_Agency_ID'], "SupplierID: ", i['O_SupplierID'],"Amount_Paid: ", i['Amount_Paid'],"Placed_Date: ",i['Placed_Date'])
                 break
     except Exception as e:
         con.rollback()
@@ -367,14 +348,21 @@ def Orders_Yet_ToBe_Returned():
 def Orders_Queued():
     try:
         var=0
-        while(var<0):
-            Username = print("Enter Username: ")
-            cur.execute("SELECT EXISTS(SELECT * Users FROM  WHERE Username = %s);" % (Username))
-            check = cur.fetchone()[0]
-            if( check <= 0 ):
+        while(var==0):
+            Username = input("Enter Username: ")
+            cur.execute("SELECT EXISTS(SELECT * FROM Users WHERE Username = '%s');" % (Username))
+           
+            check_username = next( iter((cur.fetchone()).values()) )
+           
+            if( check_username <= 0 ):
                 print("There is no user with the Username %s" % (Username))
             else:
-                cur.execute("SELECT O_Username,Order_ID,O_Product_ID,O_Agency_ID,O_SupplierID,Amount_Paid,Placed_Date,Date_of_Delivery,Is_it_delivered FROM Orders WHERE R_Username=%s ORDER BY Placed_Date",Username)
+                cur.execute("SELECT O_Username,Order_ID,O_Product_ID,O_Agency_ID,O_SupplierID,Amount_Paid,Placed_Date FROM Orders WHERE O_Username= '%s' ORDER BY Placed_Date" % (Username))
+                #P = cur.fetchmany("SELECT O_Username,Order_ID,O_Product_ID,O_Agency_ID,O_SupplierID,Amount_Paid,Placed_Date FROM Orders WHERE O_Username= '%s' AND Is_it_delivered=0" % (Username))
+                P = cur.fetchall()
+                
+                for i in P:
+                    print("Username: ",i['O_Username'],"Order_ID: ",i['Order_ID'],"Product_ID: ",i['O_Product_ID'] ,"Agency_ID: ", i['O_Agency_ID'], "SupplierID: ", i['O_SupplierID'],"Amount_Paid: ", i['Amount_Paid'],"Placed_Date: ",i['Placed_Date'])
                 break
     except Exception as e:
         con.rollback()
@@ -382,6 +370,14 @@ def Orders_Queued():
         print(">>>>>>>>>>>>>", e)
 
     return
+
+def categorical_func():
+    cur.execute("SHOW TABLES;")
+    tables = cur.fetchall()
+
+    for tbl in tables:
+        if "Category" in next( iter(tbl.values()) ):
+            CategoryList.append(next( iter(tbl.values()) ))
 
 def dispatch(ch):
     """
@@ -393,9 +389,9 @@ def dispatch(ch):
     elif(ch == 2):
         Insert_Order_Details()
     elif(ch == 3):
-        Insert_Return_Order_Details()
-    elif(ch == 4):
         pass
+    elif(ch == 4):
+        Search_Products_by_Name()
     elif(ch == 5):
         FilterCategory()
     elif(ch == 6):
@@ -418,7 +414,7 @@ def dispatch(ch):
 
 # Global
 while(1):
-    tmp = sp.call('clear', shell=True)
+    # tmp = sp.call('clear', shell=True)
     
     # Can be skipped if you want to hardcode username and password
     # username = input("Username: ")
@@ -433,7 +429,7 @@ while(1):
                               port=30306,
                               db=dbName,
                               cursorclass=pymysql.cursors.DictCursor)
-        tmp = sp.call('clear', shell=True)
+        # tmp = sp.call('clear', shell=True)
 
         if(con.open):
             print("Connected")
@@ -443,24 +439,18 @@ while(1):
         tmp = input("Enter any key to CONTINUE>")
 
         with con.cursor() as cur:
-            cur.execute("SHOW TABLES;")
-            tables = cur.fetchall()
 
-            # check if "Category" substring is present in the tables list
-            # if present, then add the category name to the CategoryList
-            for tbl in tables:
-                if "Category" in tbl:
-                    CategoryList.append(tbl)
+            if len(CategoryList) == 0:
+                categorical_func()
 
-            input()
             while(1):
-                tmp = sp.call('clear', shell=True)
+                # tmp = sp.call('clear', shell=True)
                 
                 # updates
                 print("1. Update Your Details/Create Account") 
                 print("2. Make an Order") 
                 print("3. Return an Order") 
-                print("4. Option 4") 
+                print("4. Search Product List By Name and Relevance") 
 
                 # queries
                 print("5. Add a category <category_names> filter")
@@ -469,13 +459,13 @@ while(1):
                 print("8. List all price ranges")
                 print("9. Add a price range filter")
                 print("10.Remove a price range filter")
-                print("11.")
-                print("12.")
+                print("11.Orders which are yet to be delivered")
+                print("12.Orders made by user for all time")
 
                 print("13. exit")
 
                 ch = int(input("Enter choice> "))
-                tmp = sp.call('clear', shell=True)
+                # tmp = sp.call('clear', shell=True)
                 if ch == 13:
                     exit()
                 else:
@@ -483,7 +473,7 @@ while(1):
                     tmp = input("Enter any key to CONTINUE>")
 
     except Exception as e:
-        tmp = sp.call('clear', shell=True)
+        # tmp = sp.call('clear', shell=True)
         print(e)
         # print("Connection Refused: Either username or password is incorrect or user doesn't have access to database")
         tmp = input("Enter any key to CONTINUE>")

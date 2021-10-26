@@ -47,7 +47,7 @@ ALTER TABLE Category2_Apparel ADD COLUMN Material varchar(32);
 INSERT INTO Category2_Apparel VALUES (12, "M", "Black", "Cotton");
 INSERT INTO Category2_Apparel VALUES (13, "L", "White", "Linen");
 INSERT INTO Category2_Apparel VALUES (14, "XL", "Red", "Pure Cotton");
-
+    
 // INSERT INTO Category3_OtherElectronics 
 ALTER TABLE Category3_OtherElectronics ADD COLUMN Processor varchar(32);
 ALTER TABLE Category3_OtherElectronics ADD COLUMN RAM varchar(32);
@@ -63,3 +63,5 @@ INSERT INTO Category3_OtherElectronics VALUES (10, "Ryzen pentium", "16GB", "4GB
 INSERT INTO Category3_OtherElectronics VALUES (11, "Ryzen pentium", "16GB", "8GB", "");
 INSERT INTO Category3_OtherElectronics VALUES (2, "Intel i7", "16GB", "256GB", "NVIDIA GeForce GTX 850");
 
+INSERT INTO Orders VALUES ( 2021-09-09, 1250, 0, 2021-10-10 , 2, 3, "mukundm", 2, 1);
+INSERT INTO Orders VALUES ( "2021-09-10", 3250, 1, "2021-11-11", 1, 4, "sudheer1", 3, 2);
