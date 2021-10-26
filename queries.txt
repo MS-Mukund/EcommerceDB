@@ -44,6 +44,9 @@ INSERT INTO Category1_Mobiles VALUES (6, "5000mAh", "56MP", "G-105 Helios", "12G
 ALTER TABLE Category2_Apparel ADD COLUMN Size varchar(10);
 ALTER TABLE Category2_Apparel ADD COLUMN Color varchar(10);
 ALTER TABLE Category2_Apparel ADD COLUMN Material varchar(32);
+INSERT INTO Category2_Apparel VALUES (12, "M", "Black", "Cotton");
+INSERT INTO Category2_Apparel VALUES (13, "L", "White", "Linen");
+INSERT INTO Category2_Apparel VALUES (14, "XL", "Red", "Pure Cotton");
 
 // INSERT INTO Category3_OtherElectronics 
 ALTER TABLE Category3_OtherElectronics ADD COLUMN Processor varchar(32);

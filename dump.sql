@@ -63,50 +63,54 @@ LOCK TABLES `Category1_Mobiles` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `Category2`
+-- Table structure for table `Category2_Apparel`
 --
 
-DROP TABLE IF EXISTS `Category2`;
+DROP TABLE IF EXISTS `Category2_Apparel`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `Category2` (
+CREATE TABLE `Category2_Apparel` (
   `Category2_ProductID` int DEFAULT NULL,
-  `Attrib_1` varchar(128) DEFAULT NULL,
-  `Attrib_2` varchar(128) DEFAULT NULL
+  `Size` varchar(10) DEFAULT NULL,
+  `Color` varchar(10) DEFAULT NULL,
+  `Material` varchar(32) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `Category2`
+-- Dumping data for table `Category2_Apparel`
 --
 
-LOCK TABLES `Category2` WRITE;
-/*!40000 ALTER TABLE `Category2` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Category2` ENABLE KEYS */;
+LOCK TABLES `Category2_Apparel` WRITE;
+/*!40000 ALTER TABLE `Category2_Apparel` DISABLE KEYS */;
+INSERT INTO `Category2_Apparel` VALUES (12,'M','Black','Cotton'),(13,'L','White','Linen'),(14,'XL','Red','Pure Cotton');
+/*!40000 ALTER TABLE `Category2_Apparel` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `Category3`
+-- Table structure for table `Category3_OtherElectronics`
 --
 
-DROP TABLE IF EXISTS `Category3`;
+DROP TABLE IF EXISTS `Category3_OtherElectronics`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `Category3` (
+CREATE TABLE `Category3_OtherElectronics` (
   `Category3_ProductID` int DEFAULT NULL,
-  `Attrib_1` varchar(128) DEFAULT NULL,
-  `Attrib_2` varchar(128) DEFAULT NULL,
-  `Attrib_3` varchar(128) DEFAULT NULL
+  `Processor` varchar(32) DEFAULT NULL,
+  `RAM` varchar(32) DEFAULT NULL,
+  `memory` varchar(32) DEFAULT NULL,
+  `GraphicsCard` varchar(32) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `Category3`
+-- Dumping data for table `Category3_OtherElectronics`
 --
 
-LOCK TABLES `Category3` WRITE;
-/*!40000 ALTER TABLE `Category3` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Category3` ENABLE KEYS */;
+LOCK TABLES `Category3_OtherElectronics` WRITE;
+/*!40000 ALTER TABLE `Category3_OtherElectronics` DISABLE KEYS */;
+INSERT INTO `Category3_OtherElectronics` VALUES (0,'Intel i3','4GB','1TB','NVIDIA GeForce GTX 1050'),(1,'Intel i5','8GB','1TB','NVIDIA GeForce GTX 1650'),(7,'Ryzen pentium','16GB','1GB',''),(8,'Ryzen pentium','16GB','2GB',''),(9,'Ryzen pentium','16GB','3GB',''),(10,'Ryzen pentium','16GB','4GB',''),(11,'Ryzen pentium','16GB','8GB',''),(2,'Intel i7','16GB','256GB','NVIDIA GeForce GTX 850');
+/*!40000 ALTER TABLE `Category3_OtherElectronics` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -117,11 +121,11 @@ DROP TABLE IF EXISTS `Delivery_Agency`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `Delivery_Agency` (
-  `Agency_ID` int NOT NULL,
+  `Agency_ID` int NOT NULL AUTO_INCREMENT,
   `Company_Name` varchar(128) NOT NULL,
   PRIMARY KEY (`Agency_ID`),
   UNIQUE KEY `Agency_ID` (`Agency_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -173,7 +177,8 @@ CREATE TABLE `Orders` (
   `O_SupplierID` int NOT NULL,
   `O_Username` varchar(128) NOT NULL,
   `O_Product_ID` int NOT NULL,
-  `Order_ID` int NOT NULL
+  `Order_ID` int NOT NULL AUTO_INCREMENT,
+  UNIQUE KEY `Order_ID` (`Order_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -194,13 +199,13 @@ DROP TABLE IF EXISTS `Products`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `Products` (
-  `Product_ID` int NOT NULL,
+  `Product_ID` int NOT NULL AUTO_INCREMENT,
   `Name` varchar(128) NOT NULL,
   `Warranty` varchar(128) NOT NULL,
   `Company` varchar(128) NOT NULL,
   `Price` int NOT NULL,
   PRIMARY KEY (`Product_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -247,7 +252,7 @@ DROP TABLE IF EXISTS `Return_Order`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `Return_Order` (
-  `Return_ID` int NOT NULL,
+  `Return_ID` int NOT NULL AUTO_INCREMENT,
   `Date_of_Order` date DEFAULT NULL,
   `Product_ID` int DEFAULT NULL,
   `Refund_Amount` int DEFAULT NULL,
@@ -331,13 +336,13 @@ DROP TABLE IF EXISTS `Suppliers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `Suppliers` (
-  `SupplierID` int NOT NULL,
+  `SupplierID` int NOT NULL AUTO_INCREMENT,
   `Name` varchar(128) NOT NULL,
   `Address_Line1` varchar(128) NOT NULL,
   `Address_Line2` varchar(128) DEFAULT NULL,
   `Pincode` int NOT NULL,
   PRIMARY KEY (`SupplierID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -383,7 +388,7 @@ CREATE TABLE `Users` (
 
 LOCK TABLES `Users` WRITE;
 /*!40000 ALTER TABLE `Users` DISABLE KEYS */;
-INSERT INTO `Users` VALUES ('jsmith','9238419244','john','','smith','a@gmail.com','oewrsflkl',_binary '','church tower','office street, tuni','527622'),('mukundm','8074719244','sai','mukund','meka','mukundmeka3456@gmail.com','oewrlvprdil',_binary '\0','sri prakash apartments','payakaraopeta','531126'),('namrath_ace','9347729442','sai','namrath','polakampalli','namrath123@gmail.com','ssdfmparil',_binary '','sangareddy nagar','khammam','532234'),('sdffft','7234779133','van','tom','heusen','harrypotter@gmail.com','chadflkd',_binary '\0','134/34, sprint apartements','nainital, vizag','514282'),('snuhft','9234429133','allen','','solly','sdfdkekw@gmail.com','2kbsdfly',_binary '','c-2/4, prakash nagar','gandepalli, vizag','514282'),('sudheer1','9848055442','sudheer','reddy','padala','psrmail@gmail.com','srmparil',_binary '\0','adi lakshmi nagar','ravulapalem, east godavari district','542303'),('vamsis','9234752334','sivam','','sunkara','savyasachi@gmail.com','okbrouonly',_binary '\0','b-1/2, vikas nagar','guntapalli, vizag','503282'),('vmjain','923412334','bhidit','mukeshwar','jain','b@gmail.com','somename',_binary '','hosur, halibeedu, karnataka','','500082');
+INSERT INTO `Users` VALUES ('jsmith','9238419244','john','','smith','a@gmail.com','oewrsflkl',_binary '\0','church tower','office street, tuni','527622'),('mukundm','8074719244','sai','mukund','meka','mukundmeka3456@gmail.com','oewrlvprdil',_binary '\0','sri prakash apartments','payakaraopeta','531126'),('namrath_ace','9347729442','sai','namrath','polakampalli','namrath123@gmail.com','ssdfmparil',_binary '\0','sangareddy nagar','khammam','532234'),('sdffft','7234779133','van','tom','heusen','harrypotter@gmail.com','chadflkd',_binary '\0','134/34, sprint apartements','nainital, vizag','514282'),('snuhft','9234429133','allen','','solly','sdfdkekw@gmail.com','2kbsdfly',_binary '\0','c-2/4, prakash nagar','gandepalli, vizag','514282'),('sudheer1','9848055442','sudheer','reddy','padala','psrmail@gmail.com','srmparil',_binary '\0','adi lakshmi nagar','ravulapalem, east godavari district','542303'),('vamsis','9234752334','sivam','','sunkara','savyasachi@gmail.com','okbrouonly',_binary '\0','b-1/2, vikas nagar','guntapalli, vizag','503282'),('vmjain','923412334','bhidit','mukeshwar','jain','b@gmail.com','somename',_binary '\0','hosur, halibeedu, karnataka','','500082');
 /*!40000 ALTER TABLE `Users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -396,4 +401,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-10-26 21:58:11
+-- Dump completed on 2021-10-26 22:32:49
