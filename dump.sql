@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.26, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.27, for Linux (x86_64)
 --
 -- Host: localhost    Database: BUYNOW
 -- ------------------------------------------------------
--- Server version	8.0.26-0ubuntu0.20.04.3
+-- Server version	8.0.27-0ubuntu0.20.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -38,26 +38,28 @@ LOCK TABLES `Agency_Deliverable_Pincode` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `Category1`
+-- Table structure for table `Category1_Mobiles`
 --
 
-DROP TABLE IF EXISTS `Category1`;
+DROP TABLE IF EXISTS `Category1_Mobiles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `Category1` (
+CREATE TABLE `Category1_Mobiles` (
   `Category1_ProductID` int DEFAULT NULL,
-  `Attrib_1` varchar(128) DEFAULT NULL,
-  `Attrib_2` varchar(128) DEFAULT NULL
+  `Battery` varchar(128) DEFAULT NULL,
+  `Camera` varchar(128) DEFAULT NULL,
+  `Processor` varchar(128) DEFAULT NULL,
+  `RAM` varchar(128) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `Category1`
+-- Dumping data for table `Category1_Mobiles`
 --
 
-LOCK TABLES `Category1` WRITE;
-/*!40000 ALTER TABLE `Category1` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Category1` ENABLE KEYS */;
+LOCK TABLES `Category1_Mobiles` WRITE;
+/*!40000 ALTER TABLE `Category1_Mobiles` DISABLE KEYS */;
+/*!40000 ALTER TABLE `Category1_Mobiles` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -128,6 +130,7 @@ CREATE TABLE `Delivery_Agency` (
 
 LOCK TABLES `Delivery_Agency` WRITE;
 /*!40000 ALTER TABLE `Delivery_Agency` DISABLE KEYS */;
+INSERT INTO `Delivery_Agency` VALUES (0,'DelhiVery'),(1,'SpeedPost'),(2,'DHL'),(3,'FedEx'),(4,'TNT'),(5,'UPS'),(6,'USPS');
 /*!40000 ALTER TABLE `Delivery_Agency` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -206,6 +209,7 @@ CREATE TABLE `Products` (
 
 LOCK TABLES `Products` WRITE;
 /*!40000 ALTER TABLE `Products` DISABLE KEYS */;
+INSERT INTO `Products` VALUES (0,'Lenovo IdeaPad L340','2 years','Lenovo',71999),(1,'HP Pavilion','2 years','HP',59999),(2,'Dell Inspiron','3 years','Dell',69999),(3,'Samsung Galaxy','1 years','Samsung',79999),(4,'Sony Xperia','4 years','Sony',89999),(5,'Apple iPhone','1 years','Apple',99999),(6,'Nokia Lumia','3 years','Nokia',89999),(7,'LG Smart TV','1 years','LG',51997),(8,'Sony-Ericsson Ipod','6 months','Sony',1997),(9,'Samsung Galaxy Tab','6 months','Samsung',21997),(10,'iWatch','4 months','Apple',12998),(11,'Kindle','1 year','Amazon',8999),(12,'T-shirt M-size','','Allen Solly',199),(13,'T-shirt L-size','','Van Heusen',299),(14,'T-shirt XL-size','','US POLO',399);
 /*!40000 ALTER TABLE `Products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -342,6 +346,7 @@ CREATE TABLE `Suppliers` (
 
 LOCK TABLES `Suppliers` WRITE;
 /*!40000 ALTER TABLE `Suppliers` DISABLE KEYS */;
+INSERT INTO `Suppliers` VALUES (0,'Fibtronics','pursaivalkam','chennai, Tamil Nadu',511342),(1,'Duracell Batteries','old fort road','chengalpattu, Tamil Nadu',521345),(2,'Bajaj','Rabindranath Tagore road','Race course road, New Delhi',500354),(3,'Muthoot FinCorp','Honesty vally','Darjeeling, Sikkim',234921),(4,'Tata Salt','bahadur street','Mumbai, Maharashtra',534342),(5,'Wrogn Private Limited','Jaffna nagar','Pune, Maharashtra',594342),(6,'Tata Power','Kanpur road','Lucknow, Uttar Pradesh',523114),(7,'Tata Steel','Sharma road','Kanpur, Uttar Pradesh',513214),(8,'Tata Motors','Sardar Palace','Indore, Madhya Pradesh',511236);
 /*!40000 ALTER TABLE `Suppliers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -358,7 +363,7 @@ CREATE TABLE `Users` (
   `First_name` varchar(128) NOT NULL,
   `Middle_name` varchar(128) DEFAULT NULL,
   `Last_name` varchar(128) NOT NULL,
-  `Email` varchar(328) NOT NULL,
+  `Email` varchar(328) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `Password` varchar(32) NOT NULL,
   `Premium_Subscription` bit(1) DEFAULT NULL,
   `Address_Line1` varchar(1024) NOT NULL,
@@ -367,7 +372,8 @@ CREATE TABLE `Users` (
   PRIMARY KEY (`Username`,`Phone_number`),
   UNIQUE KEY `Username` (`Username`),
   UNIQUE KEY `Phone_number` (`Phone_number`),
-  UNIQUE KEY `Email` (`Email`)
+  UNIQUE KEY `Email` (`Email`),
+  UNIQUE KEY `Email_2` (`Email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -377,6 +383,7 @@ CREATE TABLE `Users` (
 
 LOCK TABLES `Users` WRITE;
 /*!40000 ALTER TABLE `Users` DISABLE KEYS */;
+INSERT INTO `Users` VALUES ('jsmith','9238419244','john','','smith','a@gmail.com','oewrsflkl',_binary '','church tower','office street, tuni','527622'),('mukundm','8074719244','sai','mukund','meka','mukundmeka3456@gmail.com','oewrlvprdil',_binary '\0','sri prakash apartments','payakaraopeta','531126'),('namrath_ace','9347729442','sai','namrath','polakampalli','namrath123@gmail.com','ssdfmparil',_binary '','sangareddy nagar','khammam','532234'),('sdffft','7234779133','van','tom','heusen','harrypotter@gmail.com','chadflkd',_binary '\0','134/34, sprint apartements','nainital, vizag','514282'),('snuhft','9234429133','allen','','solly','sdfdkekw@gmail.com','2kbsdfly',_binary '','c-2/4, prakash nagar','gandepalli, vizag','514282'),('sudheer1','9848055442','sudheer','reddy','padala','psrmail@gmail.com','srmparil',_binary '\0','adi lakshmi nagar','ravulapalem, east godavari district','542303'),('vamsis','9234752334','sivam','','sunkara','savyasachi@gmail.com','okbrouonly',_binary '\0','b-1/2, vikas nagar','guntapalli, vizag','503282'),('vmjain','923412334','bhidit','mukeshwar','jain','b@gmail.com','somename',_binary '','hosur, halibeedu, karnataka','','500082');
 /*!40000 ALTER TABLE `Users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -389,4 +396,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-10-24 18:33:25
+-- Dump completed on 2021-10-26 16:45:25

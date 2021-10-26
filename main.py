@@ -16,27 +16,6 @@ PriceFilter = (MIN, MAX) = (0, 1e9)
 CategoryList = []
 CategoryFilter = []
 
-def option2():
-    """
-    Function to implement option 1
-    """
-    pass
-
-
-def option3():
-    """
-    Function to implement option 2
-    """
-    pass
-
-
-def option4():
-    """
-    Function to implement option 3
-    """
-    pass
-
-
 def UpdateUserDetails():
     """
     if username of customer is not present in the database, then asks user to create a new account
@@ -363,13 +342,14 @@ def Orders_Yet_ToBe_Returned():
     try:
         var=0
         while(var<0):
-            Username = printf("Enter Username: ")
+            Username = print("Enter Username: ")
             cur.execute("SELECT EXISTS(SELECT * Users FROM  WHERE Username = %s);" % (Username))
             check = cur.fetchone()[0]
             if( check <= 0 ):
                 print("There is no user with the Username %s" % (Username))
             else:
-                cur.execute("SELECT O_Username,Order_ID,O_Product_ID,O_Agency_ID,O_SupplierID,Amount_Paid,Placed_Date FROM Orders WHERE R_Username=%s AND Is_it_delivered=0",Username)
+                query = 'SELECT O_Username,Order_ID,O_Product_ID,O_Agency_ID,O_SupplierID,Amount_Paid,Placed_Date FROM Orders WHERE R_Username=%s AND Is_it_delivered=0' % (Username)
+                cur.execute(query)
                 break
     except Exception as e:
         con.rollback()
@@ -383,7 +363,7 @@ def Orders_Queued():
     try:
         var=0
         while(var<0):
-            Username = printf("Enter Username: ")
+            Username = print("Enter Username: ")
             cur.execute("SELECT EXISTS(SELECT * Users FROM  WHERE Username = %s);" % (Username))
             check = cur.fetchone()[0]
             if( check <= 0 ):
@@ -406,11 +386,11 @@ def dispatch(ch):
     if(ch == 1):
         UpdateUserDetails()
     elif(ch == 2):
-        option2()
+        Insert_Order_Details()
     elif(ch == 3):
-        option3()
+        Insert_Return_Order_Details()
     elif(ch == 4):
-        option4()
+        pass
     elif(ch == 5):
         FilterCategory()
     elif(ch == 6):
@@ -423,6 +403,10 @@ def dispatch(ch):
         FilterPrice()
     elif(ch == 10):
         RemovePrice()
+    elif(ch == 11):
+        Orders_Yet_ToBe_Returned()
+    elif(ch == 12):
+        Orders_Queued()
     else:
         print("Error: Invalid Option")
 
@@ -438,9 +422,9 @@ while(1):
     try:
         # Set db name accordingly which have been create by you
         # Set host to the server's address if you don't want to use local SQL server 
-        con = pymysql.connect(host='localhost',
-                              port=30306,
-                              user=username,
+        con = pymysql.connect(host='127.0.0.1',
+                               port=3306,
+                              user="root",
                               password=passwd,
                               db=dbName,
                               cursorclass=pymysql.cursors.DictCursor)
@@ -468,8 +452,8 @@ while(1):
                 
                 # updates
                 print("1. Update Your Details/Create Account") 
-                print("2. Option 2") 
-                print("3. Option 3") 
+                print("2. Make an Order") 
+                print("3. Return an Order") 
                 print("4. Option 4") 
 
                 # queries
@@ -479,8 +463,10 @@ while(1):
                 print("8. List all price ranges")
                 print("9. Add a price range filter")
                 print("10.Remove a price range filter")
+                print("11.")
+                print("12.")
 
-                print("11. exit")
+                print("13. exit")
 
                 ch = int(input("Enter choice> "))
                 tmp = sp.call('clear', shell=True)
