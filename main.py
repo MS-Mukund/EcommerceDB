@@ -139,7 +139,7 @@ while(1):
                               port=30306,
                               user="root",
                               password="password",
-                              db='COMPANY',
+                              db='BUYNOW',
                               cursorclass=pymysql.cursors.DictCursor)
         tmp = sp.call('clear', shell=True)
 
