@@ -3,6 +3,18 @@ import subprocess as sp
 import pymysql
 import pymysql.cursors
 
+import bisect
+
+UserName = ""
+dbName = "BUYNOW"
+
+# price range
+PriceUpperBounds = [500, 1000, 2000, 3000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000]
+PriceFilter = (MIN, MAX) = (0, 1e9)
+
+# Category List
+CategoryList = []
+CategoryFilter = []
 
 def option2():
     """
@@ -27,13 +39,8 @@ def option4():
 
 def UpdateUserDetails():
     """
-    This is a sample function implemented for the refrence.
-    This example is related to the Employee Database.
-    In addition to taking input, you are required to handle domain errors as well
-    For example: the SSN should be only 9 characters long
-    Sex should be only M or F
-    If you choose to take Super_SSN, you need to make sure the foreign key constraint is satisfied
-    HINT: Instead of handling all these errors yourself, you can make use of except clause to print the error returned to you by MySQL
+    if username of customer is not present in the database, then asks user to create a new account
+    else, updates the columns requested by the user.
     """
     try:
         # Take username as input
@@ -42,10 +49,10 @@ def UpdateUserDetails():
 
         row = {}
         # columns = []
-        uname = input("Username: ")
+        UserName = input("Username: ")
 
         # Check if the username already exists
-        cur.execute("SELECT EXISTS(SELECT * FROM Users WHERE Username = %s);" % (uname))
+        cur.execute("SELECT EXISTS(SELECT * FROM Users WHERE Username = %s);" % (UserName))
 
         check = cur.fetchone()[0]
 
@@ -74,7 +81,7 @@ def UpdateUserDetails():
                 row[column] = input("Enter the value for %s: " % column)
 
             # Update the data
-            cur.execute("UPDATE Users SET %s WHERE Username = %s" % (row, uname))
+            cur.execute("UPDATE Users SET %s WHERE Username = %s" % (row, UserName))
             print("Data updated successfully")
         
         else:
@@ -92,7 +99,7 @@ def UpdateUserDetails():
             row[10] = input("Pincode: ")
 
             # Insert the data
-            cur.execute("INSERT INTO Users VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);" %
+            cur.execute("INSERT INTO Users VALUES(%s, %s, %s, %s, %s, %s, %s, %d, %s, %s, %s);" %
             (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10]))
 
         con.commit()
@@ -107,6 +114,83 @@ def UpdateUserDetails():
     return
 
 
+def FilterCategory():
+    """
+    Function to filter the category
+    """
+    global CategoryFilter, CategoryList
+    filter = input("Enter the category: ")
+
+    # Check if the category exists    
+    if filter in CategoryList:
+        CategoryFilter.append(filter)
+    else:
+        print("Invalid option: press 7 to list all categories")
+
+
+def ListCategory():
+    """
+    Function to list all the categories
+    """
+    global CategoryList
+
+    print("List of categories:")
+    for category in CategoryList:
+        print(category)
+
+def RemoveCategory():
+    global CategoryFilter
+    inp = input("Enter category to be removed (all if you want to remove all filters): ")
+    if(inp == "all"):
+        CategoryFilter = []
+    elif inp in CategoryFilter:
+        CategoryFilter.remove(inp)
+    else:
+        print("Invalid option %s", inp)
+
+
+def ListPrice():
+    """
+    Function to list the price range
+    """
+    print("Price Range: ", end="")
+    for bound in enumerate (PriceUpperBounds):
+        if( bound[0] == 0):
+            print("< %d" % bound[1])
+        elif( bound[0] == len(PriceUpperBounds) - 1):
+            print("> %d" % bound[1])
+        else:
+            print("%d - %d" % (PriceUpperBounds[bound[0]-1], bound[1]))
+
+
+def FilterPrice():
+    """
+    Function to add price filter
+    """
+    global PriceFilter
+    inp = input("Enter the price range(a-b): ")
+    inp = inp.split("-")
+    if(len(inp) == 2):
+        try:
+            inp = [ int(inp[0]), int(inp[1]) ]
+            if(inp[0] > inp[1]):
+                inp[0], inp[1] = inp[1], inp[0]
+            
+            # closest upper bound to inp[0] and inp[1]
+            inp[0] = PriceUpperBounds[bisect.bisect_left(PriceUpperBounds, inp[0])]
+            inp[1] = PriceUpperBounds[bisect.bisect_right(PriceUpperBounds, inp[1])]
+
+            PriceFilter = inp 
+        except:
+            print("error adding price filter")
+    else:
+        print("Invalid price range")
+
+def RemovePrice():
+    global PriceFilter
+    PriceFilter = (MIN, MAX)
+    print("removed")
+
 def dispatch(ch):
     """
     Function that maps helper functions to option entered
@@ -120,6 +204,18 @@ def dispatch(ch):
         option3()
     elif(ch == 4):
         option4()
+    elif(ch == 5):
+        FilterCategory()
+    elif(ch == 6):
+        RemoveCategory()
+    elif(ch == 7):
+        ListCategory()
+    elif(ch == 8):
+        ListPrice()
+    elif(ch == 9):
+        FilterPrice()
+    elif(ch == 10):
+        RemovePrice()
     else:
         print("Error: Invalid Option")
 
@@ -130,16 +226,16 @@ while(1):
     
     # Can be skipped if you want to hardcode username and password
     username = input("Username: ")
-    password = input("Password: ")
+    passwd = input("Password: ")
 
     try:
         # Set db name accordingly which have been create by you
         # Set host to the server's address if you don't want to use local SQL server 
         con = pymysql.connect(host='localhost',
                               port=30306,
-                              user="root",
-                              password="password",
-                              db='BUYNOW',
+                              user=username,
+                              password=passwd,
+                              db=dbName,
                               cursorclass=pymysql.cursors.DictCursor)
         tmp = sp.call('clear', shell=True)
 
@@ -150,18 +246,38 @@ while(1):
 
         tmp = input("Enter any key to CONTINUE>")
 
+        con.cursor().execute("SHOW TABLES")
+        tables = con.cursor().fetchall()
+
+        # check if "Category" substring is present in the tables list
+        # if present, then add the category name to the CategoryList
+        for tbl in tables['Tables_in_' + dbName]:
+            if "Category" in tbl:
+                CategoryList.append(tbl)
+
         with con.cursor() as cur:
             while(1):
                 tmp = sp.call('clear', shell=True)
-                # Here taking example of Employee Mini-world
-                print("1. Update Your Details") 
-                print("2. Option 2")  # Fire an Employee
-                print("3. Option 3")  # Promote Employee
-                print("4. Option 4")  # Employee Statistics
-                print("5. Logout")
+                
+                # updates
+                print("1. Update Your Details/Create Account") 
+                print("2. Option 2") 
+                print("3. Option 3") 
+                print("4. Option 4") 
+
+                # queries
+                print("5. Add a category <category_names> filter")
+                print("6. Remove a category filter")
+                print("7. List all categories")
+                print("8. List all price ranges")
+                print("9. Add a price range filter")
+                print("10.Remove a price range filter")
+
+                print("11. exit")
+
                 ch = int(input("Enter choice> "))
                 tmp = sp.call('clear', shell=True)
-                if ch == 5:
+                if ch == 11:
                     exit()
                 else:
                     dispatch(ch)
