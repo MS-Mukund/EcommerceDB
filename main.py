@@ -72,16 +72,22 @@ def UpdateUserDetails():
             print()
 
             # Get the columns to be updated
-            columns = input("Enter the columns: ").split(",")
+            columns = input("Enter the columns, comma-separated: ").split(",")
             for column in columns:
-                if(column == "Premium_subscription: "):
+                if(column.lower() == "Premium_subscription".lower()):
                     row[column] = bool(input("Premium_subscription: "))
                     continue
-                
+                elif column.lower() == "Username".lower():
+                    print("You cannot change username")
+                    continue
+
                 row[column] = input("Enter the value for %s: " % column)
 
-            # Update the data
-            cur.execute("UPDATE Users SET %s WHERE Username = %s" % (row, UserName))
+            # Update columns specified by user, not all
+            for column in columns:
+                cur.execute("UPDATE Users SET %s = '%s' WHERE Username = '%s';" % (column, row[column], UserName))
+
+
             print("Data updated successfully")
         
         else:
