@@ -35,5 +35,28 @@ INSERT INTO Products VALUES (13, "T-shirt L-size", "", "Van Heusen", 299);
 INSERT INTO Products VALUES (14, "T-shirt XL-size", "", "US POLO", 399);
 
 // Insert into category1 table(mobiles);
-INSERT INTO Category1 VALUES (0, 
+INSERT INTO Category1_Mobiles VALUES (3, "4500mAh", "48MP", "G-95 Helios", "16GB");
+INSERT INTO Category1_Mobiles VALUES (4, "4000mAh", "32MP", "G-90 Helios", "8GB");
+INSERT INTO Category1_Mobiles VALUES (5, "3500mAh", "24MP", "G-60 Helios", "4GB");
+INSERT INTO Category1_Mobiles VALUES (6, "5000mAh", "56MP", "G-105 Helios", "12GB");
+
+// Insert into category2 table(apparel);
+ALTER TABLE Category2_Apparel ADD COLUMN Size varchar(10);
+ALTER TABLE Category2_Apparel ADD COLUMN Color varchar(10);
+ALTER TABLE Category2_Apparel ADD COLUMN Material varchar(32);
+
+// INSERT INTO Category3_OtherElectronics 
+ALTER TABLE Category3_OtherElectronics ADD COLUMN Processor varchar(32);
+ALTER TABLE Category3_OtherElectronics ADD COLUMN RAM varchar(32);
+ALTER TABLE Category3_OtherElectronics ADD COLUMN memory varchar(32);
+ALTER TABLE Category3_OtherElectronics ADD COLUMN GraphicsCard varchar(32);
+
+INSERT INTO Category3_OtherElectronics VALUES (0, "Intel i3", "4GB", "1TB",  "NVIDIA GeForce GTX 1050");
+INSERT INTO Category3_OtherElectronics VALUES (1, "Intel i5", "8GB", "1TB",  "NVIDIA GeForce GTX 1650");
+INSERT INTO Category3_OtherElectronics VALUES (7, "Ryzen pentium", "16GB", "1GB", "");
+INSERT INTO Category3_OtherElectronics VALUES (8, "Ryzen pentium", "16GB", "2GB", "");
+INSERT INTO Category3_OtherElectronics VALUES (9, "Ryzen pentium", "16GB", "3GB", "");
+INSERT INTO Category3_OtherElectronics VALUES (10, "Ryzen pentium", "16GB", "4GB", "");
+INSERT INTO Category3_OtherElectronics VALUES (11, "Ryzen pentium", "16GB", "8GB", "");
+INSERT INTO Category3_OtherElectronics VALUES (2, "Intel i7", "16GB", "256GB", "NVIDIA GeForce GTX 850");
 

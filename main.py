@@ -208,71 +208,77 @@ def RemovePrice():
 def Insert_Order_Details():
     try:
         var=0
-        while(var<0):
+        while(var==0):
             row = {}
             orderid = input("Order_ID: ")
             # Check if the orderId is unique or not
-            cur.execute("SELECT EXISTS(SELECT * FROM Users WHERE Order_ID = %s);" % (orderid))
-            check = cur.fetchone()[0]
-            if( check > 0 ):
-                print("There is already an order with the order_ID %s,Please give unique one\n" % (orderid))
+            check = cur.execute("SELECT EXISTS(SELECT * FROM Users WHERE Username = %s);" % (orderid))
+            #check = cur.fetchone()[0]
+            if( check <= 0 ):
+                print("There is already an order with the order_ID '%s',Please give unique one\n" % (orderid))
             else:
                 x=0
-                while(x<0):
-                    row[0] = print("Enter Username: ")
-                    cur.execute("SELECT EXISTS(SELECT * FROM Users WHERE Username = %s);" % (row[0]))
-                    check_username = cur.fetchone()[0]
-                    if(check_username<=0):
-                        print("User with this username doesn't exist in the database\n")
+                while(x==0):
+                    row[0] = input("Enter Username: ")
+                    #print(row[0])
+                    cur.execute("SELECT EXISTS(SELECT * FROM Users WHERE Username = '%s');" % (row[0]))
+                    check = next( iter((cur.fetchone()).values()) )
+                    if(check<=0):
+                        print("User with the username %s doesn't exist in the database\n" % row[0])
                     else:
                         break
-                while(x<0):
-                    row[1] = print("Enter Product ID: ")
-                    cur.execute("SELECT EXISTS(SELECT * FROM Products WHERE Product_ID= %s);" % (row[1]))
-                    check_productid = cur.fetchone()[0]
+                while(x==0):
+                    row[1] = input("Enter Product ID: ")
+                    cur.execute("SELECT EXISTS(SELECT * FROM Products WHERE Product_ID= '%s');" % (row[1]))
+                    check_productid = next( iter((cur.fetchone()).values()) )
                     if(check_productid<=0):
-                        print("Product with this Product_ID doesn't exist in the database\n")
+                        print("Product with the Product_ID %s doesn't exist in the database\n" % row[1])
                     else:
                         break 
-                while(x<0):
-                    row[2] = print("Enter Supplier ID: ")
-                    cur.execute("SELECT EXISTS(SELECT * FROM Suppliers WHERE SupplierID= %s);" % (row[2]))
-                    check_supplierid = cur.fetchone()[0]
+                while(x==0):
+                    row[2] = input("Enter Supplier ID: ")
+                    cur.execute("SELECT EXISTS(SELECT * FROM Suppliers WHERE SupplierID= '%s');" % (row[2]))
+                    check_supplierid = next( iter((cur.fetchone()).values()) )
                     if(check_supplierid<=0):
-                        print("Supplier with this Supplier_ID doesn't exist in the database\n")
+                        print("Supplier with this Supplier_ID %s doesn't exist in the database\n" % row[2])
                     else:
                         break 
-                while(x<0):
-                    row[3] = print("Enter Agency ID: ")
-                    cur.execute("SELECT EXISTS(SELECT * FROM Delivery_Agency WHERE Agency_ID = %s);" % (row[3]))
-                    check_agencyid = cur.fetchone()[0]
+                while(x==0):
+                    row[3] = input("Enter Agency ID: ")
+                    cur.execute("SELECT EXISTS(SELECT * FROM Delivery_Agency WHERE Agency_ID = '%s');" % (row[3]))
+                    check_agencyid = next( iter((cur.fetchone()).values()) )
                     if(check_agencyid<=0):
-                        print("Agency with this Agency_ID doesn't exist in the database\n")
+                        print("Agency with this Agency_ID %s doesn't exist in the database\n" % row[3])
                     else:
                         break 
-                while(x<0):
-                    row[4] = print("Enter Placed_Date: ")
-                    if type(row[4]) !="date":
-                        print("Provide valid date\n")
-                    else:
+                while(x==0):
+                    row[4] = input("Enter the date in format 'yy/mm/dd': ")
+                    year, month, day = row[4].split('-')
+                    year = int(year)
+                    month = int(month)
+                    day = int(day)
+                    if(year>=0 and year<=2022 and month>=0 and month <=12 and day>=0 and day<=31):
                         break
-                while(x<0):
-                    row[5] = print("Enter Amount_Paid: ")
-                    if type(row[5])!="int":
+                while(x==0):
+                    row[5] = input("Enter Amount_Paid: ")
+                    row[5] = int(row[5])
+                    p = int(row[5]);                   
+                    if(row[5]!=p):
                         print("Provide valid Amount Paid\n")
                     else:
                         break
-                row[6] = 0
+                row[6] =0
                 row[7] = "NULL"
                 row[8] = orderid
 
-                cur.execute("INSERT INTO Orders VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);" %
-                (row[4], row[5], row[6], row[7], row[3], row[2], row[0], row[1], row[8]))
+                cur.execute("INSERT INTO Orders VALUES('%s', '%s', 0, NULL, '%s', '%s', '%s', '%s', '%s');" %
+                (row[4], row[5],row[3], row[2], row[0], row[1], row[8]))
                 con.commit()
-                cur.execute("INSERT INTO Purchase_Transaction VALUES(%s, %s, %s, %s, %s);" %
+                cur.execute("INSERT INTO Purchase_Transaction VALUES('%s', '%s', '%s', '%s', '%s');" %
                 (row[3], row[2], row[0], row[1], row[8]))
                 con.commit()
                 print("Updated your details")
+                break
                 
 
     except Exception as e:
@@ -281,6 +287,7 @@ def Insert_Order_Details():
         print(">>>>>>>>>>>>>", e)
 
     return
+
 
 
 
