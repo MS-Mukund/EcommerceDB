@@ -189,7 +189,7 @@ def Insert_Order_Details():
         var=0
         while(var==0):
             row = {}
-            cur.execute("SELECT EXISTS(SELECT * FROM Orders WHERE Orders.Order_id = %s);" % (orderid))
+            cur.execute("SELECT EXISTS(SELECT * FROM Orders WHERE Order_id = %s);" % (Orders.Order_id))
             check = next( iter((cur.fetchone()).values()) )
             #check = cur.fetchone()[0]
             if( check <= 0 ):
