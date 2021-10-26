@@ -243,8 +243,7 @@ def Insert_Order_Details():
                 row[6] = 0
                 row[7] = "NULL"
                 row[8] = orderid
-                break
-                 # Insert the data
+
                 cur.execute("INSERT INTO Orders VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);" %
                 (row[4], row[5], row[6], row[7], row[3], row[2], row[0], row[1], row[8]))
                 con.commit()
@@ -416,16 +415,16 @@ while(1):
     tmp = sp.call('clear', shell=True)
     
     # Can be skipped if you want to hardcode username and password
-    username = input("Username: ")
-    passwd = input("Password: ")
+    # username = input("Username: ")
+    # passwd = input("Password: ")
 
     try:
         # Set db name accordingly which have been create by you
         # Set host to the server's address if you don't want to use local SQL server 
-        con = pymysql.connect(host='127.0.0.1',
-                               port=3306,
+        con = pymysql.connect(host='localhost',
                               user="root",
-                              password=passwd,
+                              password="pass",
+                              port=30306,
                               db=dbName,
                               cursorclass=pymysql.cursors.DictCursor)
         tmp = sp.call('clear', shell=True)
@@ -437,16 +436,17 @@ while(1):
 
         tmp = input("Enter any key to CONTINUE>")
 
-        con.cursor().execute("SHOW TABLES")
-        tables = con.cursor().fetchall()
-
-        # check if "Category" substring is present in the tables list
-        # if present, then add the category name to the CategoryList
-        for tbl in tables['Tables_in_' + dbName]:
-            if "Category" in tbl:
-                CategoryList.append(tbl)
-
         with con.cursor() as cur:
+            cur.execute("SHOW TABLES;")
+            tables = cur.fetchall()
+
+            # check if "Category" substring is present in the tables list
+            # if present, then add the category name to the CategoryList
+            for tbl in tables:
+                if "Category" in tbl:
+                    CategoryList.append(tbl)
+
+            input()
             while(1):
                 tmp = sp.call('clear', shell=True)
                 
@@ -470,7 +470,7 @@ while(1):
 
                 ch = int(input("Enter choice> "))
                 tmp = sp.call('clear', shell=True)
-                if ch == 11:
+                if ch == 13:
                     exit()
                 else:
                     dispatch(ch)
@@ -479,5 +479,5 @@ while(1):
     except Exception as e:
         tmp = sp.call('clear', shell=True)
         print(e)
-        print("Connection Refused: Either username or password is incorrect or user doesn't have access to database")
+        # print("Connection Refused: Either username or password is incorrect or user doesn't have access to database")
         tmp = input("Enter any key to CONTINUE>")
