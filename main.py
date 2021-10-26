@@ -1,3 +1,4 @@
+from os import uname
 import subprocess as sp
 import pymysql
 import pymysql.cursors
@@ -24,7 +25,7 @@ def option4():
     pass
 
 
-def hireAnEmployee():
+def UpdateUserDetails():
     """
     This is a sample function implemented for the refrence.
     This example is related to the Employee Database.
@@ -35,28 +36,68 @@ def hireAnEmployee():
     HINT: Instead of handling all these errors yourself, you can make use of except clause to print the error returned to you by MySQL
     """
     try:
-        # Takes emplyee details as input
+        # Take username as input
+        # if username already exists, update the columns specified by user
+        # else, ask for all the columns and insert the data into the database
+
         row = {}
-        print("Enter new employee's details: ")
-        name = (input("Name (Fname Minit Lname): ")).split(' ')
-        row["Fname"] = name[0]
-        row["Minit"] = name[1]
-        row["Lname"] = name[2]
-        row["Ssn"] = input("SSN: ")
-        row["Bdate"] = input("Birth Date (YYYY-MM-DD): ")
-        row["Address"] = input("Address: ")
-        row["Sex"] = input("Sex: ")
-        row["Salary"] = float(input("Salary: "))
-        row["Dno"] = int(input("Dno: "))
+        # columns = []
+        uname = input("Username: ")
 
-        query = "INSERT INTO EMPLOYEE(Fname, Minit, Lname, Ssn, Bdate, Address, Sex, Salary, Dno) VALUES('%s', '%c', '%s', '%s', '%s', '%s', '%c', %f, %d)" % (
-            row["Fname"], row["Minit"], row["Lname"], row["Ssn"], row["Bdate"], row["Address"], row["Sex"], row["Salary"], row["Dno"])
+        # Check if the username already exists
+        cur.execute("SELECT EXISTS(SELECT * FROM Users WHERE Username = %s);" % (uname))
 
-        print(query)
-        cur.execute(query)
+        check = cur.fetchone()[0]
+
+        if( check > 0 ):
+            print("Type the columns (comma-separated) you want to update: ")
+            print("List of columns:")
+            print("1. Phone_number")
+            print("2. First_name")
+            print("3. middle_name")
+            print("4. Last_name")
+            print("5. Email")
+            print("6. Password")
+            print("7. Premium_subscription")
+            print("8. Address_Line1")
+            print("9. Address_Line2")
+            print("10. Pincode")
+            print()
+
+            # Get the columns to be updated
+            columns = input("Enter the columns: ").split(",")
+            for column in columns:
+                if(column == "Premium_subscription: "):
+                    row[column] = bool(input("Premium_subscription: "))
+                    continue
+                
+                row[column] = input("Enter the value for %s: " % column)
+
+            # Update the data
+            cur.execute("UPDATE Users SET %s WHERE Username = %s" % (row, uname))
+            print("Data updated successfully")
+        
+        else:
+            row[0] = uname
+            row[1] = input("Phone_number: ")
+            row[2] = input("First_name: ")
+            row[3] = input("middle_name: ")
+            row[4] = input("Last_name: ")
+            row[5] = input("Email: ")
+            row[6] = input("Password: ")
+            # convert the input to boolean
+            row[7] = bool(input("Premium_subscription(0 or 1): "))
+            row[8] = input("Address_Line1: ")
+            row[9] = input("Address_Line2: ")
+            row[10] = input("Pincode: ")
+
+            # Insert the data
+            cur.execute("INSERT INTO Users VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);" %
+            (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10]))
+
         con.commit()
 
-        print("Inserted Into Database")
+        print("Updated your details")
 
     except Exception as e:
         con.rollback()
@@ -72,7 +113,7 @@ def dispatch(ch):
     """
 
     if(ch == 1):
-        hireAnEmployee()
+        UpdateUserDetails()
     elif(ch == 2):
         option2()
     elif(ch == 3):
@@ -113,7 +154,7 @@ while(1):
             while(1):
                 tmp = sp.call('clear', shell=True)
                 # Here taking example of Employee Mini-world
-                print("1. Option 1")  # Hire an Employee
+                print("1. Update Your Details") 
                 print("2. Option 2")  # Fire an Employee
                 print("3. Option 3")  # Promote Employee
                 print("4. Option 4")  # Employee Statistics
