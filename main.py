@@ -193,7 +193,7 @@ def Insert_Order_Details():
             check = next( iter((cur.fetchone()).values()) )
             #check = cur.fetchone()[0]
             if( check <= 0 ):
-                print("There is already an order with the order_ID '%s',Please give unique one\n" % (orderid))
+                print("There is already an order with the order_ID '%s',Please give unique one\n" % (Orders.Order_id))
             else:
                 x=0
                 while(x==0):
