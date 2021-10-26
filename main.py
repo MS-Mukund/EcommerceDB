@@ -31,9 +31,21 @@ def UpdateUserDetails():
         UserName = input("Username: ")
 
         # Check if the username already exists
-        cur.execute("SELECT EXISTS(SELECT * FROM Users WHERE Username = %s);" % (UserName))
+        query = "SELECT EXISTS(SELECT * FROM Users WHERE Username = '%s');" % (UserName)
+        cur.execute(query)
 
-        check = cur.fetchone()[0]
+        check = 0
+        exist = cur.fetchone()
+        if bool(exist) :
+            print(type(exist))
+            print(exist)
+            print(exist[0])
+            
+            print("NO")
+        else:
+            check = 0
+        print(check)
+        
 
         if( check > 0 ):
             print("Type the columns (comma-separated) you want to update: ")
@@ -446,7 +458,6 @@ while(1):
                 if "Category" in tbl:
                     CategoryList.append(tbl)
 
-            input()
             while(1):
                 tmp = sp.call('clear', shell=True)
                 
