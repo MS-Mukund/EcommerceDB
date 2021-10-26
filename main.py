@@ -55,6 +55,8 @@ def UpdateUserDetails():
             # Get the columns to be updated
             columns = input("Enter the columns, comma-separated: ").split(",")
             for column in columns:
+                row[column] = input("Enter the value for %s: " % column)
+                
                 if(column.lower() == "Premium_subscription".lower()):
                     if( row[column] == 1):
                         row[column] = 0x01
@@ -63,9 +65,11 @@ def UpdateUserDetails():
                     continue
                 elif column.lower() == "Username".lower():
                     print("You cannot change username")
-                    continue
-
-                row[column] = input("Enter the value for %s: " % column)
+                    return
+                elif column.lower() == "phone_number" or column.lower() == "pincode":
+                    if row[column].isdigit() == False:
+                        print("Invalid phone number or pincode")
+                        return                    
 
             # Update columns specified by user, not all
             for column in columns:
@@ -84,6 +88,9 @@ def UpdateUserDetails():
                 UserName = inp
                 
             row[1] = input("Phone_number: ")
+            if row[1].isdigit() == False:
+                print("Invalid phone number")
+                return
             row[2] = input("First_name: ")
             row[3] = input("middle_name: ")
             row[4] = input("Last_name: ")
@@ -94,6 +101,10 @@ def UpdateUserDetails():
             row[8] = input("Address_Line1: ")
             row[9] = input("Address_Line2: ")
             row[10] = input("Pincode: ")
+
+            if row[10].isdigit() == False:
+                print("Invalid pincode")
+                return
 
             # Insert the data
             cur.execute("INSERT INTO Users VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s');" %
