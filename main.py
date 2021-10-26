@@ -35,7 +35,8 @@ def UpdateUserDetails():
         cur.execute(query)
 
         check = next( iter((cur.fetchone()).values()) )
-        
+        print(check)
+
         if( check > 0 ):
             print("Type the columns (comma-separated) you want to update: ")
             print("List of columns:")
@@ -93,7 +94,6 @@ def UpdateUserDetails():
             row[8] = input("Address_Line1: ")
             row[9] = input("Address_Line2: ")
             row[10] = input("Pincode: ")
-            print("yes")
 
             # Insert the data
             cur.execute("INSERT INTO Users VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s');" %
@@ -119,8 +119,11 @@ def FilterCategory():
     filter = input("Enter the category: ")
 
     # Check if the category exists    
-    if filter in CategoryList:
+    if filter in CategoryList and filter not in CategoryFilter:
         CategoryFilter.append(filter)
+        print("Added filter")
+    elif filter in CategoryFilter:
+        print("Filter already present")
     else:
         print("Invalid option: press 7 to list all categories")
 
@@ -140,8 +143,10 @@ def RemoveCategory():
     inp = input("Enter category to be removed (all if you want to remove all filters): ")
     if(inp == "all"):
         CategoryFilter = []
+        print("Removed all filters")
     elif inp in CategoryFilter:
         CategoryFilter.remove(inp)
+        print("Removed")
     else:
         print("Invalid option %s", inp)
 
@@ -153,9 +158,9 @@ def ListPrice():
     print("Price Range: ", end="")
     for bound in enumerate (PriceUpperBounds):
         if( bound[0] == 0):
-            print("< %d" % bound[1])
+            print("     < %d" % bound[1])
         elif( bound[0] == len(PriceUpperBounds) - 1):
-            print("> %d" % bound[1])
+            print("     > %d" % bound[1])
         else:
             print("%d - %d" % (PriceUpperBounds[bound[0]-1], bound[1]))
 
@@ -185,8 +190,9 @@ def FilterPrice():
 
 def RemovePrice():
     global PriceFilter
-    PriceFilter = (MIN, MAX)
-    print("removed")
+    if PriceFilter != (MIN, MAX):
+        PriceFilter = (MIN, MAX)
+        print("removed")
     
 def Insert_Order_Details():
     try:
@@ -382,6 +388,14 @@ def Orders_Queued():
 
     return
 
+def categorical_func():
+    cur.execute("SHOW TABLES;")
+    tables = cur.fetchall()
+
+    for tbl in tables:
+        if "Category" in next( iter(tbl.values()) ):
+            CategoryList.append(next( iter(tbl.values()) ))
+
 def dispatch(ch):
     """
     Function that maps helper functions to option entered
@@ -417,7 +431,7 @@ def dispatch(ch):
 
 # Global
 while(1):
-    tmp = sp.call('clear', shell=True)
+    # tmp = sp.call('clear', shell=True)
     
     # Can be skipped if you want to hardcode username and password
     # username = input("Username: ")
@@ -432,7 +446,7 @@ while(1):
                               port=30306,
                               db=dbName,
                               cursorclass=pymysql.cursors.DictCursor)
-        tmp = sp.call('clear', shell=True)
+        # tmp = sp.call('clear', shell=True)
 
         if(con.open):
             print("Connected")
@@ -442,17 +456,12 @@ while(1):
         tmp = input("Enter any key to CONTINUE>")
 
         with con.cursor() as cur:
-            cur.execute("SHOW TABLES;")
-            tables = cur.fetchall()
 
-            # check if "Category" substring is present in the tables list
-            # if present, then add the category name to the CategoryList
-            for tbl in tables:
-                if "Category" in tbl:
-                    CategoryList.append(tbl)
+            if len(CategoryList) == 0:
+                categorical_func()
 
             while(1):
-                tmp = sp.call('clear', shell=True)
+                # tmp = sp.call('clear', shell=True)
                 
                 # updates
                 print("1. Update Your Details/Create Account") 
@@ -473,7 +482,7 @@ while(1):
                 print("13. exit")
 
                 ch = int(input("Enter choice> "))
-                tmp = sp.call('clear', shell=True)
+                # tmp = sp.call('clear', shell=True)
                 if ch == 13:
                     exit()
                 else:
@@ -481,7 +490,7 @@ while(1):
                     tmp = input("Enter any key to CONTINUE>")
 
     except Exception as e:
-        tmp = sp.call('clear', shell=True)
+        # tmp = sp.call('clear', shell=True)
         print(e)
         # print("Connection Refused: Either username or password is incorrect or user doesn't have access to database")
         tmp = input("Enter any key to CONTINUE>")
