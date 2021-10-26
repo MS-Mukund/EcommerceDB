@@ -106,6 +106,28 @@ def UpdateUserDetails():
 
     return
 
+def Search_Products_by_Name():
+    """
+    Useful to search for products by name. The Output will be all such items, sorted in descending Order of relevance to the searched Keyword
+    """
+    try:
+        #Take Keyword as input.
+        keyword  = input("Enter the Keyword to search for: ")
+        cur.execute("SELECT * FROM Products WHERE Name LIKE '%%%s%%';" %(keyword))
+
+        check = cur.fetchall() #warranty company price and name
+        j=1
+        for i in check:
+            print(j,". Product Name: " ,i['Name'], "\t Product Warranty: ",i['Warranty'],"\t Brand: ",i['Company'],"\t Price: ",i['Price'])
+            j=j+1
+
+    except Exception as e:
+        con.rollback()
+        print("Failed to Retrieve Products-List from database")
+        print(">>>>>>>>>>>>>", e)
+
+    return
+
 
 def FilterCategory():
     """
@@ -395,7 +417,7 @@ def dispatch(ch):
     elif(ch == 3):
         Insert_Return_Order_Details()
     elif(ch == 4):
-        pass
+        Search_Products_By_Name()
     elif(ch == 5):
         FilterCategory()
     elif(ch == 6):
@@ -460,7 +482,7 @@ while(1):
                 print("1. Update Your Details/Create Account") 
                 print("2. Make an Order") 
                 print("3. Return an Order") 
-                print("4. Option 4") 
+                print("4. Search Product List By Name and Relevance") 
 
                 # queries
                 print("5. Add a category <category_names> filter")
