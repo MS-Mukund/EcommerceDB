@@ -1,0 +1,39 @@
+INSERT INTO Suppliers VALUES (0, "Fibtronics", "pursaivalkam", "chennai, Tamil Nadu", "511342");
+INSERT INTO Suppliers VALUES (1, "Duracell Batteries", "old fort road", "chengalpattu, Tamil Nadu", "521345");
+INSERT INTO Suppliers VALUES (2, "Bajaj", "Rabindranath Tagore road", "Race course road, New Delhi", "500354");
+INSERT INTO Suppliers VALUES (3, "Muthoot FinCorp", "Honesty valley", "Darjeeling, Sikkim", "234921");
+INSERT INTO Suppliers VALUES (4, "Tata Salt", "bahadur street", "Mumbai, Maharashtra", "534342");
+INSERT INTO Suppliers VALUES (5, "Wrogn Private Limited", "Jaffna nagar", "Pune, Maharashtra", "594342");
+INSERT INTO Suppliers VALUES (6, "Tata Power", "Kanpur road", "Lucknow, Uttar Pradesh", "523114");
+INSERT INTO Suppliers VALUES (7, "Tata Steel", "Sharma road", "Kanpur, Uttar Pradesh", "513214");
+INSERT INTO Suppliers VALUES (8, "Tata Motors", "Sardar Palace", "Indore, Madhya Pradesh", "511236");
+
+// Inserting various Delivery agencies;
+INSERT INTO Delivery_Agency VALUES (0, "DelhiVery");
+INSERT INTO Delivery_Agency VALUES (1, "SpeedPost");
+INSERT INTO Delivery_Agency VALUES (2, "DHL");
+INSERT INTO Delivery_Agency VALUES (3, "FedEx");
+INSERT INTO Delivery_Agency VALUES (4, "TNT");
+INSERT INTO Delivery_Agency VALUES (5, "UPS");
+INSERT INTO Delivery_Agency VALUES (6, "USPS");
+
+// Inserting values in Products table;
+INSERT INTO Products VALUES (0, "Lenovo IdeaPad L340", "2 years", "Lenovo", 71999);
+INSERT INTO Products VALUES (1, "HP Pavilion", "2 years", "HP", 59999);
+INSERT INTO Products VALUES (2, "Dell Inspiron", "3 years", "Dell", 69999);
+INSERT INTO Products VALUES (3, "Samsung Galaxy", "1 years", "Samsung", 79999);
+INSERT INTO Products VALUES (4, "Sony Xperia", "4 years", "Sony", 89999);
+INSERT INTO Products VALUES (5, "Apple iPhone", "1 years", "Apple", 99999);
+INSERT INTO Products VALUES (6, "Nokia Lumia", "3 years", "Nokia", 89999);
+INSERT INTO Products VALUES (7, "LG Smart TV", "1 years", "LG", 51997);
+INSERT INTO Products VALUES (8, "Sony-Ericsson Ipod", "6 months", "Sony", 1997);
+INSERT INTO Products VALUES (9, "Samsung Galaxy Tab", "6 months", "Samsung", 21997);
+INSERT INTO Products VALUES (10, "iWatch", "4 months", "Apple", 12998);
+INSERT INTO Products VALUES (11, "Kindle", "1 year", "Amazon", 8999);
+INSERT INTO Products VALUES (12, "T-shirt M-size", "", "Allen Solly", 199);
+INSERT INTO Products VALUES (13, "T-shirt L-size", "", "Van Heusen", 299);
+INSERT INTO Products VALUES (14, "T-shirt XL-size", "", "US POLO", 399);
+
+// Insert into category1 table(mobiles);
+INSERT INTO Category1 VALUES (0, 
+
